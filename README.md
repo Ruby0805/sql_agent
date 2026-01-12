@@ -1,294 +1,434 @@
-# E-Commerce Database - Testing Environment
+# SQL Agent - Natural Language to SQL Query Tool
 
-A realistic SQL database simulating a complete e-commerce company, designed for testing business SQL scripts and analytics queries.
+<div align="center">
 
-## Database Overview
+**Ask questions about your database in plain English, powered by Google Gemini AI and Pydantic**
 
-**Database Type:** SQLite
-**Database File:** `ecommerce.db`
-**Total Tables:** 15
-**Sample Data:** Thousands of realistic records
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Pydantic](https://img.shields.io/badge/pydantic-2.0+-green.svg)](https://pydantic.dev/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Database Schema
+</div>
 
-### Core Business Tables
+## 🚀 Features
 
-#### **Departments** (8 records)
-- `department_id` - Primary key
-- `department_name` - Sales, Marketing, IT, HR, Finance, etc.
-- `manager_id` - Department manager
-- `budget` - Department budget
+- **🗣️ Natural Language Queries**: Ask questions in plain English, get SQL automatically
+- **🔒 Type-Safe**: Full Pydantic validation for all inputs and outputs
+- **🤖 AI-Powered**: Uses Google Gemini 2.0 for accurate SQL generation
+- **📊 Rich Results**: Get SQL, explanations, and formatted query results
+- **💬 Interactive CLI**: User-friendly command-line interface
+- **🎯 Schema-Aware**: Agent understands your database structure
+- **⚡ Fast Execution**: Optimized query execution with performance tracking
+- **🛡️ Error Handling**: Comprehensive validation and error messages
 
-#### **Employees** (150 records)
-- `employee_id` - Primary key
-- `first_name`, `last_name`, `email`
-- `department_id` - Foreign key to departments
-- `position` - Job title
-- `salary` - Employee salary
-- `hire_date` - Date of hiring
-- `manager_id` - Reports to employee
+## 📋 Table of Contents
 
-#### **Customers** (2,000 records)
-- `customer_id` - Primary key
-- `first_name`, `last_name`, `email`, `phone`
-- `address`, `city`, `state`, `country`, `postal_code`
-- `registration_date` - Account creation date
-- `loyalty_points` - Reward points
-- `is_active` - Account status
+- [Quick Start](#quick-start)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Interactive Chat](#interactive-chat)
+  - [Programmatic Usage](#programmatic-usage)
+  - [Command Line Tools](#command-line-tools)
+- [Project Structure](#project-structure)
+- [Example Queries](#example-queries)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [License](#license)
 
-#### **Suppliers** (50 records)
-- `supplier_id` - Primary key
-- `supplier_name`, `contact_name`
-- `email`, `phone`, `address`
-- `rating` - Supplier rating (3.0-5.0)
+## ⚡ Quick Start
 
-#### **Categories** (20 records)
-- `category_id` - Primary key
-- `category_name` - Product category
-- `parent_category_id` - For hierarchical categories
-- `description` - Category description
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
 
-#### **Products** (500 records)
-- `product_id` - Primary key
-- `product_name`, `sku`
-- `category_id` - Foreign key to categories
-- `supplier_id` - Foreign key to suppliers
-- `unit_price` - Selling price
-- `cost_price` - Cost from supplier
-- `description` - Product details
+# 2. Set your Gemini API key (get free key from https://aistudio.google.com/app/apikey)
+export GEMINI_API_KEY='your-api-key-here'
 
-#### **Inventory** (500 records)
-- `inventory_id` - Primary key
-- `product_id` - Foreign key to products
-- `warehouse_location` - Storage location
-- `quantity_on_hand` - Current stock
-- `reorder_level` - Minimum stock threshold
-- `reorder_quantity` - Quantity to reorder
+# 3. Run the demo (no API key needed)
+python scripts/demo.py
 
-#### **Orders** (3,000 records)
-- `order_id` - Primary key
-- `customer_id` - Foreign key to customers
-- `employee_id` - Sales representative
-- `order_date` - Order placement date
-- `order_status` - Pending, Processing, Shipped, Delivered, Cancelled
-- `total_amount` - Order total with tax and shipping
-- `payment_method` - Payment type
-- `ship_address`, `ship_city`, `ship_state`, etc.
+# 4. Or start the interactive chat
+python scripts/sql_chat.py
+```
 
-#### **Order Items** (Variable records)
-- `order_item_id` - Primary key
-- `order_id` - Foreign key to orders
-- `product_id` - Foreign key to products
-- `quantity` - Number of units
-- `unit_price` - Price at time of order
-- `discount` - Discount percentage
-- `subtotal` - Line item total
-
-#### **Payments** (Thousands of records)
-- `payment_id` - Primary key
-- `order_id` - Foreign key to orders
-- `payment_date` - Payment timestamp
-- `payment_method` - Payment type
-- `amount` - Payment amount
-- `transaction_id` - Payment gateway transaction ID
-- `payment_status` - Completed, Pending, Failed
-
-#### **Shipping** (Thousands of records)
-- `shipping_id` - Primary key
-- `order_id` - Foreign key to orders
-- `carrier` - FedEx, UPS, DHL, USPS
-- `tracking_number` - Shipment tracking ID
-- `shipping_date`, `estimated_delivery`, `actual_delivery`
-- `shipping_status` - Processing, In Transit, Delivered
-
-#### **Product Reviews** (1,500 records)
-- `review_id` - Primary key
-- `product_id` - Foreign key to products
-- `customer_id` - Foreign key to customers
-- `rating` - 1-5 stars
-- `review_title`, `review_text`
-- `is_verified_purchase` - Verified buyer
-- `helpful_count` - Number of helpful votes
-
-#### **Promotions** (25 records)
-- `promotion_id` - Primary key
-- `promotion_name`, `promotion_code`
-- `discount_type` - Percentage, Fixed Amount, Free Shipping
-- `discount_value` - Discount amount
-- `start_date`, `end_date` - Promotion period
-- `usage_limit`, `times_used` - Usage tracking
-
-## Getting Started
+## 📦 Installation
 
 ### Prerequisites
+
+- Python 3.9 or higher
+- SQLite 3
+- Google Gemini API key (free from [Google AI Studio](https://aistudio.google.com/app/apikey))
+
+### Install Dependencies
+
 ```bash
-# Install required Python packages
 pip install -r requirements.txt
 ```
 
-### Generate the Database
+### Install as Package
+
 ```bash
-# Run the data generation script
-python generate_data.py
+pip install -e .
 ```
 
-This will create `ecommerce.db` with all tables populated.
+This installs the package in editable mode and creates console scripts:
+- `sql-chat` - Interactive chat interface
+- `sql-demo` - Run the demo
+- `sql-test` - Test the agent
 
-### Connect to Database
+## 🎯 Usage
 
-#### Using SQLite Command Line
+### Interactive Chat
+
+Start an interactive session to ask questions about your database:
+
 ```bash
-sqlite3 ecommerce.db
+python scripts/sql_chat.py
 ```
 
-#### Using Python
+**Example conversation:**
+```
+Ask a question: What are the top 5 customers by total spending?
+
+GENERATED SQL:
+SELECT
+    c.customer_id,
+    c.first_name || ' ' || c.last_name as customer_name,
+    COUNT(o.order_id) as total_orders,
+    SUM(o.total_amount) as total_spent
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+WHERE o.order_status != 'Cancelled'
+GROUP BY c.customer_id
+ORDER BY total_spent DESC
+LIMIT 5;
+
+EXPLANATION:
+This query joins customers and orders tables, filters out cancelled orders,
+and returns the top 5 customers sorted by total spending.
+
+RESULTS:
+customer_id | customer_name  | total_orders | total_spent
+68          | Dennis Mathis  | 7            | 87893.10
+493         | Ryan Hudson    | 6            | 74453.19
+...
+```
+
+**Available Commands:**
+- `/help` - Show help message
+- `/examples` - Show example questions
+- `/schema` - Display database schema
+- `/quit` - Exit
+
+### Programmatic Usage
+
+Use the agent in your own Python scripts:
+
 ```python
-import sqlite3
+from src.sql_agent import TextToSQLAgent, format_results
 
-conn = sqlite3.connect('ecommerce.db')
-cursor = conn.cursor()
+# Initialize agent
+agent = TextToSQLAgent(database_path="data/ecommerce.db")
 
-# Run your queries
-cursor.execute("SELECT * FROM products LIMIT 5")
-results = cursor.fetchall()
+# Ask a question
+response = agent.ask("What's the average order value by month?")
 
-conn.close()
+# Display formatted results
+format_results(response)
+
+# Or access data programmatically
+if response.success and response.query_result.success:
+    for row in response.query_result.data:
+        print(f"{row['month']}: ${row['avg_order_value']:.2f}")
 ```
 
-#### Using DB Browser for SQLite
-1. Download [DB Browser for SQLite](https://sqlitebrowser.org/)
-2. Open `ecommerce.db`
-3. Browse data and run queries
+### Direct SQL Execution (No AI)
 
-## Example Queries
+Use the Pydantic-based SQL executor directly:
 
-The `example_queries.sql` file contains 25+ business analytics queries including:
+```python
+from src.sql_agent import SQLiteQueryExecutor
+
+# Initialize executor
+executor = SQLiteQueryExecutor("data/ecommerce.db")
+
+# Execute query
+result = executor.execute_raw(
+    query="SELECT * FROM customers WHERE customer_id = ?",
+    parameters=(123,)
+)
+
+# Access results
+if result.success:
+    print(f"Execution time: {result.execution_time_ms}ms")
+    for row in result.data:
+        print(row)
+```
+
+### Command Line Tools
+
+**Run Demo** (no API key required):
+```bash
+python scripts/demo.py
+```
+
+Shows 4 pre-built examples with SQL generation and execution.
+
+**Test Agent** (requires API key):
+```bash
+python scripts/test.py
+```
+
+Runs a simple test to verify your setup.
+
+**Run Example Queries**:
+```bash
+python examples/run_first_query.py
+```
+
+## 📁 Project Structure
+
+```
+sql_agent/
+├── README.md                    # Main documentation (you are here)
+├── LICENSE                      # MIT License
+├── requirements.txt             # Python dependencies
+├── setup.py                     # Package installation script
+├── .gitignore                   # Git ignore rules
+│
+├── src/sql_agent/              # Main package
+│   ├── __init__.py             # Package exports
+│   ├── sql_query_tool.py       # Pydantic-based SQL executor
+│   └── text_to_sql_agent.py    # Gemini-powered Text-to-SQL agent
+│
+├── scripts/                     # Executable scripts
+│   ├── sql_chat.py             # Interactive CLI (python scripts/sql_chat.py)
+│   ├── demo.py                 # Demo without API key (python scripts/demo.py)
+│   └── test.py                 # Test script (python scripts/test.py)
+│
+├── examples/                    # Usage examples
+│   ├── run_first_query.py      # Example: Execute SQL with Pydantic tool
+│   └── example_queries.sql     # 25+ sample business SQL queries
+│
+├── data/                        # Database and data files
+│   ├── ecommerce.db            # SQLite database (3M rows, 15 tables)
+│   ├── schema.sql              # Database schema definition
+│   └── generate_data.py        # Script to regenerate test data
+│
+└── docs/                        # Documentation
+    ├── AGENT_README.md         # Detailed agent documentation
+    └── DATABASE.md             # Database schema and structure
+```
+
+## 💡 Example Queries
 
 ### Sales Analysis
-- Total revenue by month
-- Best-selling products
-- Revenue by category
-- Sales growth rate
+- "What are the top 5 customers by total spending?"
+- "Show me monthly revenue for 2025"
+- "Which products have the highest profit margins?"
+- "What's the average order value by payment method?"
 
-### Customer Analysis
-- Top customers by spend
-- Customer retention and segments
-- Geographic distribution
-- Customer Lifetime Value (CLV)
-- Churn analysis
+### Customer Analytics
+- "How many active customers do we have?"
+- "Which customers haven't ordered in 6 months?"
+- "What's the customer distribution by country?"
+- "Show me customers with loyalty points over 4000"
 
 ### Inventory Management
-- Low stock alerts
-- Inventory value by warehouse
-- Slow-moving products
+- "Which products are low on stock?"
+- "Show me products that have never been ordered"
+- "What's the total inventory value?"
+- "List products from supplier 'Acme Corp'"
 
 ### Employee Performance
-- Sales by employee
-- Department performance and budgets
-
-### Product Analysis
-- Profit margins
-- Product ratings by category
-- ABC classification (Pareto analysis)
-
-### Order & Shipping Analysis
-- Order status distribution
-- Processing time metrics
-- Shipping carrier performance
-- Payment method analysis
+- "Which employees have processed the most orders?"
+- "Show me employees by department"
+- "What's the average salary by department?"
 
 ### Advanced Analytics
-- Cohort analysis
-- Promotion effectiveness
-- Supplier performance
+- "Calculate customer lifetime value for top customers"
+- "Show monthly sales growth rate"
+- "Which promotions were most effective?"
+- "Analyze shipping carrier performance"
 
-## Database Statistics
+See [`examples/example_queries.sql`](examples/example_queries.sql) for 25+ pre-written SQL queries.
+
+## 📚 Documentation
+
+- **[Agent Documentation](docs/AGENT_README.md)** - Complete Text-to-SQL agent guide
+- **[Database Documentation](docs/DATABASE.md)** - Database schema and structure
+- **[API Reference](#api-reference)** - Class and method documentation
+
+## 🏗️ Architecture
+
+### Components
+
+1. **SQLiteQueryExecutor** (`sql_query_tool.py`)
+   - Type-safe SQL execution with Pydantic
+   - Input validation and error handling
+   - Performance tracking and result formatting
+
+2. **TextToSQLAgent** (`text_to_sql_agent.py`)
+   - Natural language to SQL conversion using Gemini API
+   - Schema-aware prompt engineering
+   - Automatic SQL extraction and validation
+
+3. **Interactive CLI** (`scripts/sql_chat.py`)
+   - User-friendly command-line interface
+   - Command support and help system
+   - Pretty-printed results
+
+### Data Flow
 
 ```
-Departments:     8
-Employees:       150
-Customers:       2,000
-Suppliers:       50
-Categories:      20
-Products:        500
-Orders:          3,000
-Reviews:         1,500
-Promotions:      25
+User Question
+    ↓
+TextToSQLAgent
+    ↓
+Gemini API (SQL Generation)
+    ↓
+SQLiteQueryExecutor (Pydantic Validation)
+    ↓
+SQLite Database
+    ↓
+Validated Results (Pydantic Models)
+    ↓
+Formatted Output
 ```
 
-## Key Features
+## 🔑 API Reference
 
-- **Realistic Data**: Names, addresses, emails generated with Faker library
-- **Proper Relationships**: Foreign keys maintain referential integrity
-- **Historical Data**: 2-3 years of transaction history
-- **Various Scenarios**:
-  - Active and inactive customers/employees/products
-  - Multiple order statuses (pending, processing, shipped, delivered, cancelled)
-  - Different payment methods
-  - Product reviews with verified purchases
-  - Multiple warehouse locations
-  - Hierarchical categories
-  - Promotions with usage tracking
+### Pydantic Models
 
-## Use Cases
+**SQLQueryRequest**
+```python
+class SQLQueryRequest(BaseModel):
+    query: str                          # SQL query to execute
+    parameters: Optional[tuple | dict]  # Query parameters
+    database_path: str                  # Path to database
+    fetch_all: bool = True             # Fetch all results
+```
 
-Perfect for testing:
-- Sales reporting and dashboards
-- Customer analytics and segmentation
-- Inventory management systems
-- Business intelligence queries
-- Data warehouse ETL processes
-- Performance optimization
-- SQL training and education
-- Interview question practice
+**QueryResult**
+```python
+class QueryResult(BaseModel):
+    success: bool                       # Execution status
+    data: Optional[List[Dict]]          # Query results
+    rows_affected: Optional[int]        # Rows modified
+    columns: Optional[List[str]]        # Column names
+    execution_time_ms: Optional[float]  # Execution time
+    query_type: Optional[QueryType]     # Type of query
+    error_message: Optional[str]        # Error details
+```
 
-## Regenerating Data
+**TextToSQLRequest**
+```python
+class TextToSQLRequest(BaseModel):
+    question: str                       # Natural language question
+    database_path: str                  # Database path
+    include_explanation: bool = True    # Include SQL explanation
+```
 
-To create a fresh database with new random data:
+**TextToSQLResponse**
+```python
+class TextToSQLResponse(BaseModel):
+    success: bool                       # Operation status
+    question: str                       # Original question
+    generated_sql: Optional[str]        # Generated SQL
+    explanation: Optional[str]          # SQL explanation
+    query_result: Optional[QueryResult] # Execution results
+    error_message: Optional[str]        # Error details
+```
+
+## 🧪 Testing
+
+Run the demo to test without an API key:
+```bash
+python scripts/demo.py
+```
+
+Run the test suite (requires API key):
+```bash
+python scripts/test.py
+```
+
+## 🛠️ Configuration
+
+### Environment Variables
 
 ```bash
-rm ecommerce.db
-python generate_data.py
+# Required for Text-to-SQL agent
+export GEMINI_API_KEY='your-api-key-here'
 ```
 
-## Customization
+### Custom Database
 
-Edit `generate_data.py` to adjust:
-- Number of records per table (see configuration constants at top)
-- Date ranges for historical data
-- Product categories and types
-- Geographic distribution
-- Price ranges
+```python
+agent = TextToSQLAgent(database_path="/path/to/your/database.db")
+```
 
-## Database Indexes
+### Different Gemini Model
 
-Indexes are created for commonly queried fields:
-- `customers.email`
-- `products.sku`
-- `products.category_id`
-- `orders.customer_id`
-- `orders.order_date`
-- `order_items.order_id`
-- `order_items.product_id`
-- `employees.department_id`
+```python
+agent = TextToSQLAgent(
+    database_path="data/ecommerce.db",
+    model_name="gemini-1.5-pro"  # or "gemini-2.0-flash-exp"
+)
+```
 
-## Tips for Testing
+## 🎓 Database Information
 
-1. **Start with simple queries** - Explore the data with `SELECT * FROM table LIMIT 10`
-2. **Check relationships** - Use JOIN queries to understand table connections
-3. **Test edge cases** - Cancelled orders, inactive products, null values
-4. **Performance testing** - Try complex queries with aggregations and subqueries
-5. **Data integrity** - Verify foreign key relationships are maintained
+The included e-commerce database (`data/ecommerce.db`) contains:
 
-## Files
+- **15 tables** with realistic relationships
+- **Thousands of records** of test data
+- **2-3 years** of historical transactions
+- **Realistic data** generated with Faker
 
-- `schema.sql` - Database schema definition
-- `generate_data.py` - Python script to populate database
-- `example_queries.sql` - 25+ sample business queries
-- `requirements.txt` - Python dependencies
-- `ecommerce.db` - SQLite database file (generated)
-- `README.md` - This documentation
+**Key Tables:**
+- Customers (2,000 records)
+- Products (500 records)
+- Orders (3,000 records)
+- Employees (150 records)
+- And more...
 
-## License
+See [docs/DATABASE.md](docs/DATABASE.md) for complete schema documentation.
 
-Free to use for educational and testing purposes.
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Google Gemini API** for powerful AI capabilities
+- **Pydantic** for robust data validation
+- **SQLite** for the embedded database engine
+- **Faker** for realistic test data generation
+
+## 📧 Support
+
+- 📖 [Documentation](docs/)
+- 🐛 [Report Issues](https://github.com/yourusername/sql_agent/issues)
+- 💬 [Discussions](https://github.com/yourusername/sql_agent/discussions)
+
+## 🌟 Star History
+
+If you find this project useful, please consider giving it a star! ⭐
+
+---
+
+<div align="center">
+
+**Built with ❤️ using Python, Pydantic, and Google Gemini**
+
+</div>
