@@ -5,9 +5,6 @@ Run the first SQL query from example_queries.sql using the Pydantic tool
 import sys
 from pathlib import Path
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
-
 from sql_agent import SQLiteQueryExecutor
 
 # Initialize the executor
